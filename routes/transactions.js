@@ -1,93 +1,67 @@
+import pool from "../db.js";
 import { Router } from "express";
+
 const router = Router();
 
-const mockTransactions = [
-  {
-    id: "1",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 450,
-    merchant: "Swiggy",
-    date: "2026-06-01",
-  },
-  {
-    id: "2",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 650,
-    merchant: "Zomato",
-    date: "2026-06-02",
-  },
-  {
-    id: "3",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 199,
-    merchant: "Netflix",
-    date: "2026-06-03",
-  },
-  {
-    id: "4",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 250,
-    merchant: "Uber",
-    date: "2026-06-04",
-  },
-  {
-    id: "5",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 1200,
-    merchant: "Amazon",
-    date: "2026-06-05",
-  },
-  {
-    id: "6",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 99,
-    merchant: "Spotify",
-    date: "2026-06-05",
-  },
-  {
-    id: "7",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 500,
-    merchant: "Electricity Bill",
-    date: "2026-06-08",
-  },
-  {
-    id: "8",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 650,
-    merchant: "Swiggy",
-    date: "2026-06-10",
-  },
-  {
-    id: "9",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 199,
-    merchant: "Netflix",
-    date: "2026-07-03",
-  },
-  {
-    id: "10",
-    user_id: "d5dde641-b803-4b8c-94fa-e3a8c9157722",
-    amount: 99,
-    merchant: "Spotify",
-    date: "2026-07-05",
-  },
-];
+const TEMP_USER_ID = "d5dde641-b803-4b8c-94fa-e3a8c9157722";
 
-router.get("/", (req, res) => {
-  res.status(200).json(mockTransactions);
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC",
+      [TEMP_USER_ID],
+    );
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("GET /transactions error:", err.message);
+    res.status(500).json({ error: "Failed to fetch transactions" });
+  }
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { amount, merchant, date } = req.body;
-  console.log("Recevied:", { amount, merchant, date });
-  const created = { id: "new-mock-id", amount, merchant, date };
-  res.status(201).json(created);
+
+  if (!amount || !merchant || !date) {
+    return res
+      .status(400)
+      .json({ error: "amount, merchant, and date are required fields" });
+  }
+  if (isNaN(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: "amount must be a positive number" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO transactions (user_id, amount, merchant, date)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *`,
+      [TEMP_USER_ID, amount, merchant, date],
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("POST /transactions error:", err.message);
+    res.status(500).json({ error: "Failed to create transaction" });
+  }
 });
 
-router.delete("/:id", (req, res) => {
-  console.log("Deleting id:", req.params.id);
-  res.status(204).send();
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM transactions WHERE id = $1 AND user_id = $2 ",
+      [id, TEMP_USER_ID],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    console.error("DELETE /transactions error:", err.message);
+    res.status(500).json({ error: "Failed to delete transaction" });
+  }
 });
 
 export default router;
