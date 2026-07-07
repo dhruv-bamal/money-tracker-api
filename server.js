@@ -1,10 +1,12 @@
 import express from "express";
 import transactionsRouter from "./routes/transactions.js";
+import summaryRouter from "./routes/summary.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use("/api/summary", summaryRouter);
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
