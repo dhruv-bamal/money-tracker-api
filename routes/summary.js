@@ -3,13 +3,12 @@ import pool from "../db.js";
 import { totalByCategory, detectRecurring } from "../lib/logic.js";
 
 const router = Router();
-const TEMP_USER_ID = "d5dde641-b803-4b8c-94fa-e3a8c9157722";
 
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC",
-      [TEMP_USER_ID],
+      [req.user.id],
     );
 
     const transactions = result.rows;

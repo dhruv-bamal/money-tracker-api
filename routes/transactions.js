@@ -4,13 +4,11 @@ import { categorize } from "../lib/logic.js";
 
 const router = Router();
 
-const TEMP_USER_ID = "d5dde641-b803-4b8c-94fa-e3a8c9157722";
-
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC",
-      [TEMP_USER_ID],
+      [req.user.id],
     );
 
     const enriched = result.rows.map((row) => ({
@@ -56,7 +54,7 @@ router.post("/", async (req, res) => {
       `INSERT INTO transactions (user_id, amount, merchant, date)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [TEMP_USER_ID, parsedAmount, merchant.trim(), date],
+      [req.user.id, parsedAmount, merchant.trim(), date],
     );
 
     const created = {
@@ -77,7 +75,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM transactions WHERE id = $1 AND user_id = $2 ",
-      [id, TEMP_USER_ID],
+      [id, req.user.id],
     );
 
     if (result.rowCount === 0) {
