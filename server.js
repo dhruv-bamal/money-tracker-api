@@ -1,6 +1,7 @@
 import express from "express";
 import transactionsRouter from "./routes/transactions.js";
 import summaryRouter from "./routes/summary.js";
+import authRouter from "./routes/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/transactions", transactionsRouter);
 app.use("/api/summary", summaryRouter);
+app.use("/api/auth", authRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.method} ${req.url} not found` });
