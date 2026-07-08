@@ -1,7 +1,9 @@
+import "dotenv/config";
 import express from "express";
 import transactionsRouter from "./routes/transactions.js";
 import summaryRouter from "./routes/summary.js";
 import authRouter from "./routes/auth.js";
+import { authMiddleware } from "./middleware/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
