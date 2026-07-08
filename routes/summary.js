@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
     });
   } catch (err) {
     console.error("GET /summary error:", err.message);
-    res.status(50).json({ error: "Failed to fetch summary" });
+    res.status(500).json({ error: "Failed to fetch summary" });
   }
 });
 
