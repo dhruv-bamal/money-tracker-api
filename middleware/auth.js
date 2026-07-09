@@ -14,6 +14,7 @@ export function authMiddleware(req, res, next) {
     req.user = { id: payload.userId };
     next();
   } catch (err) {
+    console.error("Token verify failed:", err.name, err.message);
     return res.status(401).json({ error: "invalid or expired token" });
   }
 }
