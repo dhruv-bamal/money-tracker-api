@@ -91,7 +91,10 @@ Returns aggregated spending data for the current user.
 }
 ```
 
-### Notes
+## Security note
 
-- Authentication is not yet implemented — all routes currently operate on a single hardcoded user (`TEMP_USER_ID`). Real auth arrives in Week 3.
-- The Render free tier spins down after 15 minutes of inactivity; the first request after idle may take 30–60 seconds.
+Auth tokens are stored in localStorage for simplicity. This is readable by
+any JS running on the page (XSS risk). A production app would use httpOnly
+cookies instead, which aren't accessible to JavaScript — but that requires
+backend cookie handling and CSRF protection. Documented tradeoff, not an
+oversight.
