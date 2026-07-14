@@ -5,7 +5,7 @@ PostgreSQL. Handles authentication, per-user data isolation, and
 server-side spending analysis for the
 [Money Tracker](https://github.com/dhruv-bamal/money-tracker-next) frontend.
 
-**Live:** https://money-tracker-api-xxxx.onrender.com
+**Live:** https://money-tracker-api-funr.onrender.com
 
 > ⏱️ Hosted on Render's free instance type, which spins down after 15
 > minutes of inactivity. The first request after idle takes 30–60 seconds.
